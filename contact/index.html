@@ -6,7 +6,7 @@
     <title>Обратная связь</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        /* Основные стили формы */
+        /* Стили формы */
         .form-container {
             max-width: 600px;
             margin: 2rem auto;
@@ -18,8 +18,8 @@
             content: " *";
             color: red;
         }
-
-        /* Стили для уведомления */
+        
+        /* Стили уведомлений */
         #notification {
             position: fixed;
             top: 20px;
@@ -31,30 +31,38 @@
             background-color: #fff;
             z-index: 1000;
             transform: translateX(150%);
-            transition: transform 0.4s ease-out, opacity 0.3s ease;
+            transition: transform 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28), opacity 0.3s ease;
             opacity: 0;
         }
         .notification-show {
             transform: translateX(0) !important;
             opacity: 1 !important;
         }
-        .notification-hidden {
-            transform: translateX(150%);
-            opacity: 0;
-        }
         .notification-success {
             border-left: 4px solid #28a745;
-            background-color: #f8f9fa;
         }
         .notification-error {
             border-left: 4px solid #dc3545;
-            background-color: #f8f9fa;
+        }
+        
+        /* Стили страницы логов */
+        .logs-page {
+            display: none;
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+        }
+        .log-entry {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            font-family: monospace;
         }
     </style>
 </head>
 <body>
-    <div class="container py-5">
-        <div class="form-container bg-white">
+    <!-- Основная форма -->
+    <div class="container" id="mainForm">
+        <div class="form-container">
             <h2 class="text-center mb-4">Форма обратной связи</h2>
             
             <form id="feedbackForm">
@@ -65,8 +73,7 @@
                 
                 <div class="mb-3">
                     <label for="telegram" class="form-label required">Телеграм для связи</label>
-                    <input type="text" class="form-control" id="telegram" 
-                           placeholder="@username или +79991234567" required>
+                    <input type="text" class="form-control" id="telegram" placeholder="@username или +79991234567" required>
                 </div>
                 
                 <div class="mb-3">
@@ -87,63 +94,123 @@
                 
                 <button type="submit" class="btn btn-primary w-100">Отправить</button>
             </form>
+            
+            <div class="text-center mt-3">
+                <a href="#" id="viewLogsLink" class="text-secondary">Администрирование (логи ошибок)</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Страница логов -->
+    <div class="container" id="logsPage">
+        <div class="form-container">
+            <h2 class="text-center mb-4">Логи ошибок</h2>
+            
+            <div class="mb-3">
+                <input type="password" id="adminPassword" class="form-control" placeholder="Введите пароль администратора">
+            </div>
+            
+            <button id="showLogsBtn" class="btn btn-primary w-100 mb-3">Показать логи</button>
+            <button id="backToFormBtn" class="btn btn-secondary w-100">Назад к форме</button>
+            
+            <div id="logsContainer" class="mt-4" style="display: none;">
+                <h4 class="mb-3">Последние ошибки:</h4>
+                <div id="logsList"></div>
+            </div>
         </div>
     </div>
 
     <!-- Уведомление -->
-    <div id="notification" class="notification-hidden">
-        <div class="d-flex align-items-center">
-            <div class="notification-icon me-2"></div>
-            <div id="notification-message"></div>
-        </div>
+    <div id="notification">
+        <div id="notification-message"></div>
     </div>
 
     <script>
-        document.getElementById('feedbackForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const formData = {
-                name: document.getElementById('name').value.trim(),
-                telegram: document.getElementById('telegram').value.trim(),
-                problem: document.getElementById('problem').value,
-                comment: document.getElementById('comment').value.trim()
-            };
-            
-            if (!formData.name || !formData.telegram || !formData.problem) {
-                showNotification('Пожалуйста, заполните обязательные поля', 'error');
-                return;
-            }
-            
-            try {
-                await sendToTelegram(formData);
-                showNotification('Сообщение отправлено! Мы свяжемся с вами в Telegram.', 'success');
-                this.reset();
-            } catch (error) {
-                console.error('Ошибка:', error);
-                showNotification('Ошибка при отправке. Пожалуйста, попробуйте позже.', 'error');
-            }
+        // Конфигурация
+        const ADMIN_PASSWORD = "superadmin123"; // Замените на свой пароль!
+        const LOGS_STORAGE_KEY = "feedback_form_error_logs";
+        const TELEGRAM_BOT_TOKEN = "7461042577:AAE40_KkgdkfAXsq1E3SFi2_6TeIZ5p_SxU";
+        const TELEGRAM_CHAT_ID = "-4636420852";
+
+        // Элементы DOM
+        const mainForm = document.getElementById('mainForm');
+        const logsPage = document.getElementById('logsPage');
+        const viewLogsLink = document.getElementById('viewLogsLink');
+        const backToFormBtn = document.getElementById('backToFormBtn');
+        const showLogsBtn = document.getElementById('showLogsBtn');
+        const adminPassword = document.getElementById('adminPassword');
+        const logsContainer = document.getElementById('logsContainer');
+        const logsList = document.getElementById('logsList');
+
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', function() {
+            // Обработчик формы
+            document.getElementById('feedbackForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const formData = {
+                    name: document.getElementById('name').value.trim(),
+                    telegram: document.getElementById('telegram').value.trim(),
+                    problem: document.getElementById('problem').value,
+                    comment: document.getElementById('comment').value.trim()
+                };
+                
+                if (!formData.name || !formData.telegram || !formData.problem) {
+                    showNotification('Заполните обязательные поля', 'error');
+                    return;
+                }
+                
+                try {
+                    await sendToTelegram(formData);
+                    showNotification('Сообщение отправлено! Мы свяжемся с вами в Telegram.', 'success');
+                    this.reset();
+                } catch (error) {
+                    console.error('Ошибка:', error);
+                    logError(error);
+                    showNotification('Ошибка при отправке. Пожалуйста, попробуйте позже.', 'error');
+                }
+            });
+
+            // Навигация
+            viewLogsLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                mainForm.style.display = 'none';
+                logsPage.style.display = 'block';
+            });
+
+            backToFormBtn.addEventListener('click', function() {
+                mainForm.style.display = 'block';
+                logsPage.style.display = 'none';
+                logsContainer.style.display = 'none';
+            });
+
+            showLogsBtn.addEventListener('click', function() {
+                if (adminPassword.value === ADMIN_PASSWORD) {
+                    loadLogs();
+                    logsContainer.style.display = 'block';
+                } else {
+                    showNotification('Неверный пароль', 'error');
+                }
+            });
         });
 
+        // Функции
         async function sendToTelegram(data) {
-            // ЗАМЕНИТЕ ЭТИ ЗНАЧЕНИЯ НА СВОИ
-            const botToken = '7461042577:AAE40_KkgdkfAXsq1E3SFi2_6TeIZ5p_SxU';
-			const chatId = '-4636420852';
+            const text = `📢 <b>Новая заявка</b>\n\n` +
+                        `👤 <b>Имя:</b> ${data.name}\n` +
+                        `📱 <b>Telegram:</b> ${data.telegram}\n` +
+                        `❗ <b>Проблема:</b> ${data.problem}\n` +
+                        `📝 <b>Комментарий:</b> ${data.comment || 'Не указан'}`;
             
-            const text = `📢 Новая заявка:\n\n` +
-                        `👤 Имя: ${data.name}\n` +
-                        `📱 Telegram: ${data.telegram}\n` +
-                        `❗ Проблема: ${data.problem}\n` +
-                        `📝 Комментарий: ${data.comment || 'Не указан'}`;
-            
-            const response = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+            const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    chat_id: chatId,
+                    chat_id: TELEGRAM_CHAT_ID,
                     text: text,
-                    parse_mode: 'Markdown'
+                    parse_mode: 'HTML'
                 })
             });
             
@@ -154,22 +221,36 @@
             const notification = document.getElementById('notification');
             const messageElement = document.getElementById('notification-message');
             
-            // Очищаем предыдущие классы
             notification.className = 'notification-hidden';
-            void notification.offsetWidth; // Триггер reflow
+            void notification.offsetWidth;
             
-            // Устанавливаем сообщение и стиль
             messageElement.textContent = message;
-            notification.classList.add(type === 'success' ? 
-                'notification-success' : 'notification-error');
+            notification.classList.add(`notification-${type}`, 'notification-show');
             
-            // Показываем уведомление
-            notification.classList.add('notification-show');
-            
-            // Автоматическое скрытие через 5 секунд
             setTimeout(() => {
                 notification.classList.remove('notification-show');
             }, 5000);
+        }
+
+        function logError(error) {
+            const logs = JSON.parse(localStorage.getItem(LOGS_STORAGE_KEY)) || [];
+            logs.unshift({
+                timestamp: new Date().toISOString(),
+                message: error.message,
+                stack: error.stack || 'Нет данных'
+            });
+            localStorage.setItem(LOGS_STORAGE_KEY, JSON.stringify(logs));
+        }
+
+        function loadLogs() {
+            const logs = JSON.parse(localStorage.getItem(LOGS_STORAGE_KEY)) || [];
+            logsList.innerHTML = logs.map(log => `
+                <div class="log-entry">
+                    <strong>${new Date(log.timestamp).toLocaleString()}</strong><br>
+                    ${log.message}<br>
+                    <small class="text-muted">${log.stack}</small>
+                </div>
+            `).join('');
         }
     </script>
 </body>
