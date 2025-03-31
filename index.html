@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FriesMC - Гриферский сервер Minecraft</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --main-color: #FF6B00;
+            --dark-color: #1A1A1A;
+            --light-color: #F8F9FA;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--dark-color);
+            color: var(--light-color);
+            background-image: url('https://images.unsplash.com/photo-1607513746994-51f730a44832?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+        }
+        
+        .hero-section {
+            padding: 100px 0;
+            background: rgba(0, 0, 0, 0.7);
+            text-align: center;
+        }
+        
+        .server-ip {
+            background: var(--main-color);
+            padding: 10px 20px;
+            border-radius: 50px;
+            display: inline-block;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .server-ip:hover {
+            transform: scale(1.05);
+        }
+        
+        .feature-card {
+            background: rgba(26, 26, 26, 0.8);
+            border-radius: 10px;
+            padding: 30px;
+            height: 100%;
+            transition: transform 0.3s;
+            border-left: 4px solid var(--main-color);
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+        }
+        
+        .nav-pills .nav-link.active {
+            background-color: var(--main-color) !important;
+        }
+        
+        .nav-pills .nav-link {
+            color: var(--light-color);
+        }
+        
+        .section-title {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 40px;
+        }
+        
+        .section-title:after {
+            content: '';
+            position: absolute;
+            width: 50%;
+            height: 3px;
+            background: var(--main-color);
+            bottom: -10px;
+            left: 25%;
+        }
+        
+        .btn-main {
+            background-color: var(--main-color);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 50px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .btn-main:hover {
+            background-color: #e05d00;
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        
+        .rules-list li {
+            margin-bottom: 15px;
+            position: relative;
+            padding-left: 30px;
+        }
+        
+        .rules-list li:before {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            color: var(--main-color);
+            position: absolute;
+            left: 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Навигация -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-fire me-2" style="color: var(--main-color);"></i>
+                <span style="color: var(--main-color); font-weight: bold;">Fries</span>MC
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#">Главная</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#features">Особенности</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#rules">Правила</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#connect">Как подключиться</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Герой секция -->
+    <section class="hero-section">
+        <div class="container">
+            <h1 class="display-3 fw-bold mb-4">Добро пожаловать на <span style="color: var(--main-color);">FriesMC</span></h1>
+            <p class="lead mb-5">Лучший гриферский сервер Minecraft с безлимитными возможностями для разрушений!</p>
+            
+            <div class="d-flex justify-content-center gap-4 flex-wrap">
+                <div class="server-ip" onclick="copyToClipboard('play.friesmc.ru')">
+                    <i class="fas fa-copy me-2"></i> play.friesmc.ru
+                </div>
+                <a href="#connect" class="btn btn-main btn-lg">
+                    <i class="fas fa-plug me-2"></i> Подключиться
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Особенности сервера -->
+    <section id="features" class="py-5" style="background: rgba(0,0,0,0.8);">
+        <div class="container py-5">
+            <h2 class="text-center section-title">Наши <span style="color: var(--main-color);">особенности</span></h2>
+            
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <div class="text-center mb-3">
+                            <i class="fas fa-bomb fa-3x mb-3" style="color: var(--main-color);"></i>
+                            <h3>Полная анархия</h3>
+                        </div>
+                        <p class="text-center">Никаких ограничений - гриферьте, стройте, разрушайте. Никаких правил, кроме минимальных для поддержания работоспособности сервера.</p>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <div class="text-center mb-3">
+                            <i class="fas fa-tachometer-alt fa-3x mb-3" style="color: var(--main-color);"></i>
+                            <h3>Максимальная производительность</h3>
+                        </div>
+                        <p class="text-center">Мощное железо обеспечивает стабильные 20 TPS даже при большом количестве игроков и масштабных разрушениях.</p>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <div class="text-center mb-3">
+                            <i class="fas fa-users fa-3x mb-3" style="color: var(--main-color);"></i>
+                            <h3>Активное комьюнити</h3>
+                        </div>
+                        <p class="text-center">Ежедневно онлайн 50+ игроков. Присоединяйся к нашему Discord-сообществу и координируй атаки с другими гриферами!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Правила -->
+    <section id="rules" class="py-5">
+        <div class="container py-5">
+            <h2 class="text-center section-title">Основные <span style="color: var(--main-color);">правила</span></h2>
+            
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="bg-dark p-4 rounded-3">
+                        <ul class="rules-list list-unstyled">
+                            <li>Никаких читов и стороннего ПО (разрешены только клиентские моды типа OptiFine)</li>
+                            <li>Запрещены DDoS-атаки и другие методы, угрожающие работоспособности сервера</li>
+                            <li>Разрешено все, что не нарушает два пункта выше</li>
+                            <li>Администрация не восстанавливает утерянные вещи и постройки</li>
+                            <li>Играя на сервере, вы соглашаетесь с возможной потерей всего имущества</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Как подключиться -->
+    <section id="connect" class="py-5" style="background: rgba(0,0,0,0.8);">
+        <div class="container py-5">
+            <h2 class="text-center section-title">Как <span style="color: var(--main-color);">подключиться</span></h2>
+            
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="p-4 rounded-3 h-100" style="background: rgba(26,26,26,0.8);">
+                        <h3 class="mb-4"><i class="fas fa-server me-2" style="color: var(--main-color);"></i> Через Minecraft клиент</h3>
+                        <ol>
+                            <li class="mb-3">Запустите Minecraft (версия 1.12.2 - 1.20.1)</li>
+                            <li class="mb-3">Нажмите "Сетевая игра" → "Добавить сервер"</li>
+                            <li class="mb-3">Введите адрес: <code>play.friesmc.ru</code></li>
+                            <li>Нажмите "Готово" и присоединяйтесь!</li>
+                        </ol>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="p-4 rounded-3 h-100" style="background: rgba(26,26,26,0.8);">
+                        <h3 class="mb-4"><i class="fab fa-discord me-2" style="color: var(--main-color);"></i> Наше сообщество</h3>
+                        <p class="mb-4">Присоединяйтесь к нашему Discord-сообществу, чтобы быть в курсе всех событий сервера, координировать действия с другими игроками и получать помощь.</p>
+                        <a href="#" class="btn btn-main">
+                            <i class="fab fa-discord me-2"></i> Discord сервер
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Футер -->
+    <footer class="bg-dark py-4">
+        <div class="container text-center">
+            <p class="mb-0">© 2023 FriesMC. Все права не защищены - это же анархия!</p>
+            <p class="text-muted small mt-2">Сервер не аффилирован с Mojang Studios</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Копирование IP сервера
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('IP сервера скопирован: ' + text);
+            });
+        }
+        
+        // Плавная прокрутка
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+        
+        // Фиксированная навигация
+        window.addEventListener('scroll', function() {
+            const nav = document.querySelector('.navbar');
+            if (window.scrollY > 100) {
+                nav.classList.add('bg-dark');
+                nav.classList.remove('bg-transparent');
+            } else {
+                nav.classList.add('bg-transparent');
+                nav.classList.remove('bg-dark');
+            }
+        });
+    </script>
+</body>
+</html>
